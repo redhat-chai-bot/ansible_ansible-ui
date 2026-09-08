@@ -1,6 +1,5 @@
 import {
   LoadingPage,
-  PageForm,
   PageFormSelect,
   PageFormSubmitHandler,
   PageFormTextInput,
@@ -11,6 +10,7 @@ import {
   usePageAlertToaster,
   usePageNavigate,
 } from '@ansible/ansible-ui-framework';
+import { PlatformPageForm } from '../../../common/PlatformPageForm';
 import { PageFormSection } from '@ansible/ansible-ui-framework/PageForm/Utils/PageFormSection';
 import { awxErrorAdapter } from '@ansible/awx-ui/common/adapters/awxErrorAdapter';
 import { UserAssignment } from '@ansible/common-ui/access/interfaces/UserAssignment';
@@ -129,7 +129,7 @@ export function CreatePlatformUser() {
           { label: t('Create user') },
         ]}
       />
-      <PageForm<IUserInput>
+      <PlatformPageForm<IUserInput>
         submitText={t('Create user')}
         onSubmit={onSubmit}
         cancelText={t('Cancel')}
@@ -137,7 +137,7 @@ export function CreatePlatformUser() {
         defaultValue={defaultValue}
       >
         <PlatformUserInputs isCreate />
-      </PageForm>
+      </PlatformPageForm>
     </PageLayout>
   );
 }
@@ -350,14 +350,14 @@ export function EditPlatformUser() {
           },
         ]}
       />
-      <PageForm<IUserInput>
+      <PlatformPageForm<IUserInput>
         submitText={t('Save user')}
         onSubmit={onSubmit}
         onCancel={() => void navigate(-1)}
         defaultValue={defaultValue}
       >
         <PlatformUserInputs />
-      </PageForm>
+      </PlatformPageForm>
     </PageLayout>
   );
 }

@@ -1,5 +1,4 @@
 import {
-  PageForm,
   PageFormSubmitHandler,
   PageFormTextInput,
   PageHeader,
@@ -7,6 +6,7 @@ import {
   useGetPageUrl,
   usePageNavigate,
 } from '@ansible/ansible-ui-framework';
+import { PlatformPageForm } from '../../common/PlatformPageForm';
 import { PageFormSection } from '@ansible/ansible-ui-framework/PageForm/Utils/PageFormSection';
 import { useGet } from '@ansible/common-ui/crud/useGet';
 import { usePatchRequest } from '@ansible/common-ui/crud/usePatchRequest';
@@ -57,14 +57,14 @@ export function CreatePlatformRole(props: Readonly<{ breadcrumbLabelForPreviousP
           { label: t('Create role') },
         ]}
       />
-      <PageForm<PlatformRole>
+      <PlatformPageForm<PlatformRole>
         submitText={t('Create role')}
         onSubmit={onSubmit}
         cancelText={t('Cancel')}
         onCancel={onCancel}
       >
         <PlatformRoleInputs isEditMode={false} />
-      </PageForm>
+      </PlatformPageForm>
     </PageLayout>
   );
 }
@@ -118,7 +118,7 @@ export function EditPlatformRole(props: Readonly<{ breadcrumbLabelForPreviousPag
               { label: role?.name ? t('Edit {{roleName}}', { roleName: role?.name }) : t('Roles') },
             ]}
           />
-          <PageForm<PlatformRole>
+          <PlatformPageForm<PlatformRole>
             submitText={t('Save role')}
             onSubmit={onSubmit}
             cancelText={t('Cancel')}
@@ -130,7 +130,7 @@ export function EditPlatformRole(props: Readonly<{ breadcrumbLabelForPreviousPag
             onCancel={onCancel}
           >
             <PlatformRoleInputs isEditMode={true} />
-          </PageForm>
+          </PlatformPageForm>
         </PageLayout>
       );
     }

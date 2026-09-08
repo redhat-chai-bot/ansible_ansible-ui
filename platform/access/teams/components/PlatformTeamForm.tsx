@@ -1,6 +1,5 @@
 import {
   LoadingPage,
-  PageForm,
   PageFormSubmitHandler,
   PageFormTextArea,
   PageFormTextInput,
@@ -10,6 +9,7 @@ import {
   useGetPageUrl,
   usePageNavigate,
 } from '@ansible/ansible-ui-framework';
+import { PlatformPageForm } from '../../../common/PlatformPageForm';
 import { AwxError } from '@ansible/awx-ui/common/AwxError';
 import { useGet } from '@ansible/common-ui/crud/useGet';
 import { usePatchRequest } from '@ansible/common-ui/crud/usePatchRequest';
@@ -41,14 +41,14 @@ export function CreatePlatformTeam() {
           { label: t('Create team') },
         ]}
       />
-      <PageForm
+      <PlatformPageForm
         submitText={t('Create team')}
         onSubmit={onSubmit}
         cancelText={t('Cancel')}
         onCancel={() => void navigate(-1)}
       >
         <PlatformTeamInputs />
-      </PageForm>
+      </PlatformPageForm>
     </PageLayout>
   );
 }
@@ -81,14 +81,14 @@ export function EditPlatformTeam() {
           { label: team?.name ? t('Edit {{teamName}}', { teamName: team?.name }) : t('Teams') },
         ]}
       />
-      <PageForm
+      <PlatformPageForm
         submitText={t('Save team')}
         onSubmit={onSubmit}
         onCancel={() => void navigate(-1)}
         defaultValue={team}
       >
         <PlatformTeamInputs isEditMode />
-      </PageForm>
+      </PlatformPageForm>
     </PageLayout>
   );
 }

@@ -1,6 +1,5 @@
 import {
   ICatalogBreadcrumb,
-  PageForm,
   PageFormSelect,
   PageFormSubmitHandler,
   PageFormTextArea,
@@ -10,6 +9,7 @@ import {
   usePageDialogs,
   usePageNavigate,
 } from '@ansible/ansible-ui-framework';
+import { PlatformPageForm } from '../../common/PlatformPageForm';
 import { LoadingState } from '@ansible/ansible-ui-framework/components/LoadingState';
 import { UserTokenSecretsModal } from '@ansible/awx-ui/access/users/UserPage/UserTokenSecretsModal';
 import { useGet } from '@ansible/common-ui/crud/useGet';
@@ -154,7 +154,7 @@ export function ApiTokenForm() {
   return (
     <PageLayout>
       <PageHeader title={title} breadcrumbs={breadcrumbs} />
-      <PageForm<Token>
+      <PlatformPageForm<Token>
         submitText={submitText}
         onSubmit={onSubmit}
         cancelText={t('Cancel')}
@@ -180,7 +180,7 @@ export function ApiTokenForm() {
           isRequired
           defaultValue="write"
         />
-      </PageForm>
+      </PlatformPageForm>
     </PageLayout>
   );
 }
