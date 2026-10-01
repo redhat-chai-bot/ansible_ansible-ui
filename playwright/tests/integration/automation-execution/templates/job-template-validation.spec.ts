@@ -171,7 +171,7 @@ test.describe('Job Template Form - Validation', () => {
       const editorLines = page.getByTestId('extra-vars').locator('.view-lines');
       await expect(editorLines).not.toContainText('|2-', { timeout: 3000 });
 
-      const extraVarsField = page.getByTestId('extra-vars');
+      const extraVarsField = page.getByTestId('extra-vars-form-group');
       await expect(extraVarsField.getByText(/document separator|end of the stream/i)).toBeVisible({
         timeout: 10000,
       });
