@@ -72,6 +72,58 @@ describe('edaErrorAdapter', () => {
     expect(result.fieldErrors.length).toBe(0);
     expect(result.genericErrors).toEqual([{ message: 'Generic non-field error' }]);
   });
+
+  it('should flatten nested credential inputs errors into dotted field names', () => {
+    const error = new RequestError(
+      'Bad Request',
+      undefined,
+      400,
+      {},
+      { inputs: { username: ['This field may not be blank.'] } }
+    );
+    const result = edaErrorAdapter(error);
+    expect(result.genericErrors).toHaveLength(0);
+    expect(result.fieldErrors).toEqual([
+      { name: 'inputs.username', message: 'This field may not be blank.' },
+    ]);
+  });
+
+  it('should flatten multiple nested credential inputs errors', () => {
+    const error = new RequestError(
+      'Bad Request',
+      undefined,
+      400,
+      {},
+      {
+        inputs: {
+          username: ['Username is required'],
+          password: ['Password is too short'],
+        },
+      }
+    );
+    const result = edaErrorAdapter(error);
+    expect(result.genericErrors).toHaveLength(0);
+    expect(result.fieldErrors).toEqual(
+      expect.arrayContaining([
+        { name: 'inputs.username', message: 'Username is required' },
+        { name: 'inputs.password', message: 'Password is too short' },
+      ])
+    );
+    expect(result.fieldErrors).toHaveLength(2);
+  });
+
+  it('should handle nested string values as field errors', () => {
+    const error = new RequestError(
+      'Bad Request',
+      undefined,
+      400,
+      {},
+      { inputs: { host: 'Invalid host' } }
+    );
+    const result = edaErrorAdapter(error);
+    expect(result.genericErrors).toHaveLength(0);
+    expect(result.fieldErrors).toEqual([{ name: 'inputs.host', message: 'Invalid host' }]);
+  });
 });
 
 describe('useEdaErrorMessageParser', () => {

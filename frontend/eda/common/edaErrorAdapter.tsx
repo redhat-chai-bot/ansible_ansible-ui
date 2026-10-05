@@ -5,6 +5,35 @@ import {
 } from '@ansible/ansible-ui-framework/PageForm/typesErrorAdapter';
 import { isRequestError } from '@ansible/common-ui/crud/RequestError';
 
+/**
+ * Recursively flatten a nested error object into dotted field names.
+ *
+ * Example: `{ inputs: { username: ["required"] } }` produces
+ * `[{ name: "inputs.username", message: "required" }]`.
+ *
+ * This matches how react-hook-form registers nested credential fields
+ * (e.g. `inputs.${field.id}`) so that `setError("inputs.username", …)`
+ * attaches the message to the correct form control.
+ */
+function flattenNestedErrors(
+  obj: Record<string, unknown>,
+  prefix: string,
+  fieldErrors: FieldErrorDetail[]
+): void {
+  for (const key in obj) {
+    const qualifiedName = prefix ? `${prefix}.${key}` : key;
+    const value = obj[key];
+
+    if (Array.isArray(value)) {
+      fieldErrors.push({ name: qualifiedName, message: value.join(',') });
+    } else if (typeof value === 'object' && value !== null) {
+      flattenNestedErrors(value as Record<string, unknown>, qualifiedName, fieldErrors);
+    } else {
+      fieldErrors.push({ name: qualifiedName, message: String(value) });
+    }
+  }
+}
+
 export const edaErrorAdapter = (error: unknown): ErrorOutput => {
   const genericErrors: GenericErrorDetail[] = [];
   const fieldErrors: FieldErrorDetail[] = [];
@@ -30,6 +59,11 @@ export const edaErrorAdapter = (error: unknown): ErrorOutput => {
       } else if (Array.isArray(value)) {
         const message = value.join(',');
         fieldErrors.push({ name: key, message });
+      } else if (typeof value === 'object' && value !== null) {
+        // Recursively flatten nested validation errors into dotted field
+        // names so they map to react-hook-form controls
+        // (e.g. inputs.username).
+        flattenNestedErrors(value as Record<string, unknown>, key, fieldErrors);
       } else {
         const message = String(value);
         fieldErrors.push({ name: key, message });
