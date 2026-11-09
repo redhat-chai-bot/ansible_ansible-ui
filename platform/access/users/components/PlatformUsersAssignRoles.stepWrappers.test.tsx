@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { PlatformUsersAssignRoles } from './PlatformUsersAssignRoles';
@@ -28,7 +28,7 @@ vi.mock('@ansible/ansible-ui-framework', async () => {
       );
       expect(() => rolesStep?.validate?.({}, undefined)).toThrow('Select at least one role.');
 
-      return null;
+      return <span>PageWizard</span>;
     },
     useGetPageUrl: () => () => '',
     usePageNavigate: () => vi.fn(),
@@ -70,5 +70,7 @@ describe('PlatformUsersAssignRoles wizard step validate wrappers', () => {
         </Routes>
       </MemoryRouter>
     );
+
+    expect(screen.getByText('PageWizard')).toBeInTheDocument();
   });
 });
