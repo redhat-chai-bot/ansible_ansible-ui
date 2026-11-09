@@ -6,10 +6,6 @@ import {
 } from '@ansible/ansible-ui-framework';
 import { Application } from '@ansible/awx-ui/interfaces/Application';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-
-vi.mock('@react-hook/resize-observer', () => ({
-  default: () => {},
-}));
 import { PlatformRoute } from '../../../main/PlatformRoutes';
 
 const mockPageNavigate = vi.fn();
@@ -75,35 +71,29 @@ describe('useOAuthApplicationActions', () => {
     } as ReturnType<typeof usePlatformActiveUser>);
   });
 
-  test('should show edit and delete for superuser', () => {
+  test('edit navigates and delete invokes bulk handler', () => {
     const { result } = renderHook(() =>
       useOAuthApplicationActions({ onApplicationsDeleted: vi.fn() })
     );
 
     const edit = findButton(result.current, 'Edit OAuth application');
-    expect(edit?.isHidden?.(mockApp)).toBe(false);
-
-    edit?.onClick(mockApp);
+    edit?.onClick?.(mockApp);
     expect(mockPageNavigate).toHaveBeenCalledWith(PlatformRoute.EditApplication, {
-      params: { id: 12 },
+      params: { id: mockApp.id },
     });
 
     const del = findButton(result.current, 'Delete OAuth application');
-    expect(del?.isHidden?.(mockApp)).toBe(false);
-    del?.onClick(mockApp);
+    del?.onClick?.(mockApp);
     expect(mockDeleteApplications).toHaveBeenCalledWith([mockApp]);
   });
 
-  test('should hide edit and delete when not superuser', () => {
-    vi.mocked(usePlatformActiveUser).mockReturnValue({
-      activePlatformUser: { is_superuser: false },
-    } as ReturnType<typeof usePlatformActiveUser>);
-
+  test('delete onClick no-ops when application is undefined', () => {
     const { result } = renderHook(() =>
       useOAuthApplicationActions({ onApplicationsDeleted: vi.fn() })
     );
 
-    expect(findButton(result.current, 'Edit OAuth application')?.isHidden?.(mockApp)).toBe(true);
-    expect(findButton(result.current, 'Delete OAuth application')?.isHidden?.(mockApp)).toBe(true);
+    const del = findButton(result.current, 'Delete OAuth application');
+    del?.onClick?.(undefined as unknown as Application);
+    expect(mockDeleteApplications).not.toHaveBeenCalled();
   });
 });

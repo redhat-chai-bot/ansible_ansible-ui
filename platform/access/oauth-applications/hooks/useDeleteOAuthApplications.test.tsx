@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react';
-import { Application } from '@ansible/awx-ui/interfaces/Application';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { Application } from '@ansible/awx-ui/interfaces/Application';
+import { gatewayAPI } from '../../../utils/gateway-api-utils';
 
 const { mockBulkConfirmation, mockRequestDelete } = vi.hoisted(() => ({
   mockBulkConfirmation: vi.fn(),
@@ -35,20 +36,25 @@ vi.mock('@ansible/common-ui/columns', () => ({
 }));
 
 vi.mock('@ansible/common-ui/crud/Data', async () => {
-  const actual = await vi.importActual('@ansible/common-ui/crud/Data');
+  const actual = await vi.importActual<typeof import('@ansible/common-ui/crud/Data')>(
+    '@ansible/common-ui/crud/Data'
+  );
   return {
     ...actual,
-    requestDelete: (...args: unknown[]): Promise<void> =>
-      mockRequestDelete(...args) as Promise<void>,
+    requestDelete: (
+      ...args: Parameters<typeof actual.requestDelete>
+    ): ReturnType<typeof actual.requestDelete> =>
+      mockRequestDelete(...args) as ReturnType<typeof actual.requestDelete>,
   };
 });
 
 import { useDeleteOAuthApplications } from './useDeleteOAuthApplications';
 
-const mockApplication = (overrides: Partial<Application> = {}): Application => ({
-  id: 5,
-  name: 'beta-app',
-  url: '/applications/5/',
+const mockApp = (overrides: Partial<Application> = {}): Application => ({
+  id: 1,
+  name: 'gamma',
+  url: '/api/gateway/v1/applications/1/',
+  app_url: 'https://example.com',
   client_type: 'confidential',
   organization: 1,
   type: 'o_auth2_application',
@@ -56,7 +62,7 @@ const mockApplication = (overrides: Partial<Application> = {}): Application => (
   modified: '',
   summary_fields: {
     user_capabilities: { edit: true, delete: true },
-    organization: { id: 1, name: 'Org', description: '' },
+    organization: { id: 1, name: 'O', description: '' },
   },
   ...overrides,
 });
@@ -66,12 +72,12 @@ describe('useDeleteOAuthApplications', () => {
     vi.clearAllMocks();
   });
 
-  test('should invoke bulk confirmation with sorted applications and delete by id', () => {
+  test('invokes bulk confirmation with sorted apps and deletes via API', () => {
     const onComplete = vi.fn();
     const { result } = renderHook(() => useDeleteOAuthApplications(onComplete));
 
-    const appB = mockApplication({ id: 2, name: 'b-app' });
-    const appA = mockApplication({ id: 1, name: 'a-app' });
+    const appB = mockApp({ id: 2, name: 'b-app' });
+    const appA = mockApp({ id: 1, name: 'a-app' });
 
     result.current([appB, appA]);
 
@@ -86,9 +92,9 @@ describe('useDeleteOAuthApplications', () => {
 
     const signal = new AbortController().signal;
     callArg.actionFn(appA, signal);
-    expect(mockRequestDelete).toHaveBeenCalledWith('/api/gateway/v1/applications/1/', signal);
+    expect(mockRequestDelete).toHaveBeenCalledWith(gatewayAPI`/applications/1/`, signal);
 
-    const apps = [appA];
+    const apps: Application[] = [appA];
     callArg.onComplete(apps);
     expect(onComplete).toHaveBeenCalledWith(apps);
   });
