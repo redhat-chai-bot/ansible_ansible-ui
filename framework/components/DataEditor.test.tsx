@@ -40,6 +40,7 @@ vi.mock('monaco-editor', () => {
 
   return {
     KeyCode: { Enter: 13 },
+    MarkerSeverity: { Hint: 1, Info: 2, Warning: 4, Error: 8 },
     Range: function Range() {},
     json: { jsonDefaults: { setDiagnosticsOptions: vi.fn() } },
     languages: { register: vi.fn(), setMonarchTokensProvider: vi.fn() },
