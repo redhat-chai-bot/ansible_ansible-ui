@@ -92,6 +92,11 @@ describe('Scrollable', () => {
     );
 
     const scrollTarget = container.querySelectorAll('div')[1] as HTMLElement;
+    const outer = scrollTarget.parentElement as HTMLElement;
+
+    // Before scroll: bottom shadow is not rendered (no overflow detected)
+    const childrenBeforeScroll = outer.children.length;
+
     Object.defineProperties(scrollTarget, {
       scrollTop: { configurable: true, value: 50, writable: true },
       scrollLeft: { configurable: true, value: 60, writable: true },
@@ -105,7 +110,7 @@ describe('Scrollable', () => {
       scrollTarget.dispatchEvent(new Event('scroll', { bubbles: true }));
     });
 
-    expect(scrollTarget.scrollLeft).toBeGreaterThan(0);
-    expect(scrollTarget.scrollTop).toBeGreaterThan(0);
+    // After scroll: bottom shadow element is conditionally rendered when content overflows
+    expect(outer.children.length).toBeGreaterThan(childrenBeforeScroll);
   });
 });

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -68,11 +68,7 @@ describe('ReorderItems', () => {
         columns={[
           {
             header: 'Name',
-            cell: (item: Item, setItem) => (
-              <button type="button" onClick={() => setItem({ ...item, name: 'Updated' })}>
-                {item.name}
-              </button>
-            ),
+            cell: (item: Item) => item.name,
           },
         ]}
         items={[
@@ -99,8 +95,10 @@ describe('ReorderItems', () => {
       value: () => ({ x: 0, y: 0, width: 400, height: 200 }),
     });
 
-    fireEvent.dragStart(source, {
-      dataTransfer: { effectAllowed: 'move', setData: vi.fn(), getData: vi.fn() },
+    act(() => {
+      fireEvent.dragStart(source, {
+        dataTransfer: { effectAllowed: 'move', setData: vi.fn(), getData: vi.fn() },
+      });
     });
 
     Object.defineProperty(target, 'getBoundingClientRect', {
@@ -108,12 +106,16 @@ describe('ReorderItems', () => {
       value: () => ({ x: 0, y: 30, width: 400, height: 30 }),
     });
 
-    fireEvent.dragOver(target, { clientX: 10, clientY: 40 });
-    fireEvent.dragEnd(source);
-    fireEvent.drop(target, { clientX: 0, clientY: 0 });
+    act(() => {
+      fireEvent.dragOver(target, { clientX: 10, clientY: 40 });
+    });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Alpha' }));
-    expect(setItems).toHaveBeenCalled();
+    expect(setItems).toHaveBeenCalledWith([
+      { id: 'b', name: 'Beta' },
+      { id: 'a', name: 'Alpha' },
+    ]);
+
+    fireEvent.dragEnd(source);
   });
 
   it('clears drag state on drag end', () => {
