@@ -203,4 +203,29 @@ describe('buildInventorySourceStatusCellProps', () => {
     const props = buildInventorySourceStatusCellProps(source, mockGetPageUrl);
     expect(props.tooltipId).toBe(700);
   });
+
+  // --- Regression: inventory source last_job without id must not produce a link ---
+  // See PR #3686: when last_job existed as an object but had no id, the URL
+  // contained a literal :id placeholder.
+
+  it('returns no link when last_job exists but has no id', () => {
+    const source = createTestSource({
+      summary_fields: {
+        last_job: { status: 'successful', finished: '2024-01-01T00:00:00Z' },
+      },
+    });
+    const props = buildInventorySourceStatusCellProps(source, mockGetPageUrl);
+    expect(props.to).toBeUndefined();
+  });
+
+  it('returns no link when both current_job and last_job exist without id', () => {
+    const source = createTestSource({
+      summary_fields: {
+        current_job: { status: 'running' },
+        last_job: { status: 'failed' },
+      },
+    });
+    const props = buildInventorySourceStatusCellProps(source, mockGetPageUrl);
+    expect(props.to).toBeUndefined();
+  });
 });

@@ -196,4 +196,29 @@ describe('buildProjectStatusCellProps', () => {
     const { tooltipContent } = buildProjectStatusCellProps(project, mockGetPageUrl, '', '');
     expect(tooltipContent).toBe('');
   });
+
+  // --- Regression: project status link with job objects that have no id ---
+  // See PR #3686: when current_job or last_job existed as objects without a
+  // valid id, getPageUrl received undefined and produced a URL with literal :id.
+
+  it('returns no link when current_job and last_job exist without id', () => {
+    const project = createTestProject({
+      summary_fields: {
+        current_job: {},
+        last_job: {},
+      },
+    });
+    const { statusCellProps } = buildProjectStatusCellProps(project, mockGetPageUrl);
+    expect(statusCellProps.to).toBeUndefined();
+  });
+
+  it('returns no link when only last_job exists without id', () => {
+    const project = createTestProject({
+      summary_fields: {
+        last_job: {},
+      },
+    });
+    const { statusCellProps } = buildProjectStatusCellProps(project, mockGetPageUrl);
+    expect(statusCellProps.to).toBeUndefined();
+  });
 });
